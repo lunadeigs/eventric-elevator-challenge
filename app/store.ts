@@ -7,18 +7,12 @@ const initialState:ElevatorState = {
     direction: Direction.IDLE,
     floorState: FloorState.CLOSED,
     passengerQueue: [],
-    requestQueue: [{
-        name: "Another Person",
-        destinationFloor: 6,
-        direction: Direction.UP,
-        startingFloor: 5,
-        requestTime: new Date('December 17, 1995 03:24:01').toString()
-    }],
+    requestQueue: [],
     spawnTimer: 0
 }
 
 function incrementSpawnTimer(prev:number){
-    if(prev === 9){
+    if(prev === 19){
         return 0
     }else{
         return prev + 1
@@ -126,6 +120,10 @@ const elevatorSlice = createSlice({
                         && tenant.direction === state.direction
                     )) !== undefined){
                         shouldStop = true
+                    }
+
+                    if(state.destinationFloor === state.currentFloor && state.direction !== Direction.IDLE){
+                        shouldStop = true 
                     }
 
                     if(shouldStop){

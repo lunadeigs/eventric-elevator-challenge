@@ -5,7 +5,7 @@ import PassengerList from "./passengerList"
 import PendingRequestsList from "./pendingRequestsList"
 import ElevatorControl from "./elevatorControl"
 import { useEffect, useState } from "react"
-import { RootState, AppDispatch, pickUp, nextFloor, dropOff, updateDestination, updateDirection, stepFloorState } from "./store"
+import { RootState, AppDispatch, pickUp, nextFloor, dropOff, updateDestination, updateDirection, stepFloorState, addRequest } from "./store"
 import { useAppDispatch, useAppSelector } from "./reduxHooks"
 
 function validateDirection(elevatorState:ElevatorState){
@@ -49,6 +49,28 @@ function floorHasPickup(elevatorState:ElevatorState){
     )) !== undefined 
 }
 
+function buildRandomTenant():Tenant{
+    const startingFloor = Math.floor(Math.random() * 20) + 1;
+    let destinationFloor = Math.floor(Math.random() * 20) + 1;
+    
+    if(destinationFloor === startingFloor){
+        if(destinationFloor < 10){
+            destinationFloor += 1
+        }else{
+            destinationFloor -= 1
+        }
+    }
+
+    return {
+        destinationFloor: destinationFloor,
+        direction: startingFloor > destinationFloor ? Direction.DOWN : Direction.UP,
+        name: "First Last",
+        requestTime: DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS),
+        startingFloor: startingFloor
+    }
+}
+
+
 function useElevator(){
     const elevatorState = useAppSelector(state => state)
     const elevatorDispatch = useAppDispatch()
@@ -60,8 +82,8 @@ function useElevator(){
 
         setTimeout(() => {
             if(!ignore){
-                if(elevatorState.spawnTimer === 9){
-
+                if(elevatorState.spawnTimer === 19){
+                    elevatorDispatch(addRequest(buildRandomTenant()))
                 }else{
                     switch(elevatorState.floorState){
                         case FloorState.ARRIVING:
@@ -94,7 +116,7 @@ function useElevator(){
                     }
                 }
             }
-        }, 1000)
+        }, 500)
 
         return(() => {
             ignore = true

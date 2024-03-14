@@ -21,14 +21,14 @@ export default function PassengerList(props:{
             <table className="table table-vcenter">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Floor</th>
+                        <th className="w-10">Name</th>
+                        <th className="w-2">Floor</th>
                     </tr>
                 </thead>
                 <tbody>{
-                    props.elevatorPassengers.map((val) => {
+                    props.elevatorPassengers.map((val, idx) => {
                         return <PassengerRow
-                            key={val.name}
+                            key={idx}
                             {...val}
                         />
                     })
