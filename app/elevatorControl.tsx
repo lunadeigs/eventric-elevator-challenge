@@ -48,39 +48,52 @@ function ElevatorDisplay(props:Pick<ElevatorState, 'currentFloor' | 'direction' 
 function ElevatorPanelButton(props:{
     pressed:boolean
     floorNumber: number
-}){
+}){ /* FIXME - Need to remove the on hover effect so it's not confusing when using */
     return <div className="col col-auto text-center">
         <span 
-            className={`btn btn-icon cursor-default ${props.pressed ? "btn-yellow" : "btn-outline-yellow"}`}
+            className={`btn btn-icon cursor-default ${props.pressed ? "btn" : "btn-outline"}-yellow`}
+            style={{
+                
+            }}
         >{props.floorNumber}</span>
     </div>
 }
 
 function ElevatorPanelRow(props:{
     startFloor: number,
-    currentFloor: number,
-    passengerQueue: Tenant[]
+    pressedFloors: number[]
 }){
     return <div className={`col col-12 ${props.startFloor === 16 ? 'mb-3' : props.startFloor === 1 ? 'bt-3' : 'my-3'}`}>
         <div className="row row-deck justify-content-evenly">{
             Array.from(Array(5).keys()).map(val => {
+                const floorNumber = val + props.startFloor
+
                 return <ElevatorPanelButton
-                    pressed={false}
-                    floorNumber={val + props.startFloor}
-                    key={val + props.startFloor}
+                    pressed={props.pressedFloors.includes(floorNumber)}
+                    floorNumber={floorNumber}
+                    key={floorNumber}
                 />
             })
         }</div>
     </div>
 }
 
-function ElevatorPanel(props:Pick<ElevatorState, 'currentFloor' | 'passengerQueue'>){
+function ElevatorPanel(props:Pick<ElevatorState, 'currentFloor' | 'passengerQueue' | 'floorState'>){
+    const pressedFloors = Array.from(new Set(props.passengerQueue.reduce((prev, curr) => {
+        const newFloor = curr.destinationFloor
+        
+        if(!(newFloor === props.currentFloor && props.floorState !== FloorState.OPEN)){
+            return [...prev, newFloor]
+        }
+        return prev
+    }, [] as number[])))
+
     return <CardWrapper col={12}>
         <div className="card-body">
             {
                 Array.from(Array(4).keys()).reverse().map(val => {
                     return <ElevatorPanelRow
-                        {...props}
+                        pressedFloors={pressedFloors}
                         startFloor={(val*5) + 1}
                         key={val + 1}
                     />
