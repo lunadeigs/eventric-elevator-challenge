@@ -4,7 +4,6 @@ import Script from "next/script";
 import "./globals.css";
 import "@tabler/core/dist/css/tabler.css"
 
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
