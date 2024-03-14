@@ -1,7 +1,8 @@
 import { DateTime } from "luxon"
-import { Direction, Tenant } from "./elevatorTypes"
+import { Direction, FloorState, Tenant } from "./elevatorTypes"
 import PassengerList from "./passengerList"
 import PendingRequestsList from "./pendingRequestsList"
+import ElevatorControl from "./elevatorControl"
 
 function PageWrapper(props:{
     children:React.ReactNode
@@ -21,18 +22,27 @@ function PageWrapper(props:{
 
 
 export default function Home(){
-    const DUMMY_PASSENGERS:Pick<Tenant, 'name' | 'destinationFloor'>[] = [
+    const DUMMY_PASSENGERS:Tenant[] = [
         {
             name: "Something Something",
-            destinationFloor: 5
+            destinationFloor: 5,
+            direction: Direction.DOWN,
+            startingFloor: 10,
+            requestTime: DateTime.now().toJSDate()
         },
         {
             name: "Another Person",
-            destinationFloor: 6
+            destinationFloor: 6,
+            direction: Direction.UP,
+            startingFloor: 5,
+            requestTime: DateTime.now().toJSDate()
         },
         {
             name: "Third Person",
-            destinationFloor: 4
+            destinationFloor: 4,
+            direction: Direction.UP,
+            startingFloor: 1,
+            requestTime: DateTime.now().toJSDate()
         }
     ]
 
@@ -68,6 +78,12 @@ export default function Home(){
         <PageWrapper>
             <PassengerList 
                 elevatorPassengers={DUMMY_PASSENGERS}
+            />
+            <ElevatorControl
+                currentFloor={8}
+                direction={Direction.DOWN}
+                floorState={FloorState.CLOSED}
+                passengerQueue={DUMMY_PASSENGERS}
             />
             <PendingRequestsList
                 pendingTenants={DUMMY_REQUESTS}
