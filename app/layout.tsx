@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+import "@tabler/core/dist/css/tabler.css"
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,6 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta17/dist/js/tabler.min.js" />
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   );
