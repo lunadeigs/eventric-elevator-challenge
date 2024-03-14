@@ -1,6 +1,6 @@
 'use client'
 
-import { IconArrowDown, IconDoor, IconDoorEnter, IconMinus } from "@tabler/icons-react"
+import { IconArrowDown, IconArrowUp, IconDoor, IconDoorEnter, IconMinus } from "@tabler/icons-react"
 import { Direction, ElevatorState, FloorState, Tenant } from "./elevatorTypes"
 import CardWrapper from "./cardWrapper"
 
@@ -11,19 +11,19 @@ function ElevatorDisplayArrow(props:Pick<ElevatorState, 'direction' | 'floorStat
             : props.floorState === FloorState.ARRIVING || props.floorState === FloorState.LEAVING ?
                 props.direction === Direction.DOWN ?
                     <IconArrowDown className="text-red icon icon-lg" />
-                    : <IconArrowDown className="text-green icon icon-lg" />
-                : props.direction === Direction.UP ?
-                    <IconArrowDown className="text-red icon icon-lg" />
-                    : <IconArrowDown className="text-green icon icon-lg" />
+                    : <IconArrowUp className="text-green icon icon-lg" />
+                : props.direction === Direction.DOWN ?
+                    <IconArrowDown className="text-secondary icon icon-lg" />
+                    : <IconArrowUp className="text-secondary icon icon-lg" />
     }</div>
 }
 
 function ElevatorDisplayDoor(props:Pick<ElevatorState, 'floorState'>){
     return <div className="col col-4 text-center">{
         props.floorState === FloorState.OPEN ?
-            <IconDoorEnter className="text-green icon-lg" />
+            <IconDoorEnter className="text-green icon icon-lg" />
             :
-            <IconDoor className="icon icon-lg"/>
+            <IconDoor className="icon icon icon-lg"/>
     }</div>
 }
 
@@ -82,10 +82,7 @@ function ElevatorPanel(props:Pick<ElevatorState, 'currentFloor' | 'passengerQueu
     const pressedFloors = Array.from(new Set(props.passengerQueue.reduce((prev, curr) => {
         const newFloor = curr.destinationFloor
         
-        if(!(newFloor === props.currentFloor && props.floorState !== FloorState.OPEN)){
-            return [...prev, newFloor]
-        }
-        return prev
+        return [...prev, newFloor]
     }, [] as number[])))
 
     return <CardWrapper col={12}>

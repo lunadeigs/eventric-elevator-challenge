@@ -11,7 +11,7 @@ function PendingRequestRow(props:Pick<Tenant, 'direction' | 'requestTime' | 'sta
             props.direction === Direction.UP ?
                 <IconArrowUp className="text-green"/> : <IconArrowDown className="text-red" />
         }</td>
-        <td className="w-4">{props.requestTime.toLocaleTimeString()}</td>
+        <td className="w-4">{props.requestTime}</td>
     </tr>
 }
 

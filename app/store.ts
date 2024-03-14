@@ -7,7 +7,22 @@ const initialState:ElevatorState = {
     direction: Direction.IDLE,
     floorState: FloorState.CLOSED,
     passengerQueue: [],
-    requestQueue: []
+    requestQueue: [{
+        name: "Another Person",
+        destinationFloor: 6,
+        direction: Direction.UP,
+        startingFloor: 5,
+        requestTime: new Date('December 17, 1995 03:24:01').toString()
+    }],
+    spawnTimer: 0
+}
+
+function incrementSpawnTimer(prev:number){
+    if(prev === 9){
+        return 0
+    }else{
+        return prev + 1
+    }
 }
 
 const elevatorSlice = createSlice({
@@ -22,7 +37,7 @@ const elevatorSlice = createSlice({
             ))
             const updatedPassengerQueue = [...newPassengers, ...state.passengerQueue]
 
-            state.requestQueue = state.requestQueue.filter(tenant => (
+            state.requestQueue = state.requestQueue.filter(tenant => !(
                 tenant.direction === state.direction && 
                 tenant.startingFloor === state.currentFloor
             ))
@@ -34,20 +49,25 @@ const elevatorSlice = createSlice({
                 
                 return state.direction === Direction.DOWN ? 1 : -1
             })
+            state.spawnTimer = incrementSpawnTimer(state.spawnTimer)
         },
         dropOff: (state) => {
             // Drops off tenants on floor with matching direction
             state.passengerQueue = state.passengerQueue.filter(tenant => tenant.destinationFloor !== state.currentFloor)
+            state.spawnTimer = incrementSpawnTimer(state.spawnTimer)
         },
         addRequest: (state, action:PayloadAction<Tenant>) => {
             // Adds a new tenant to the requestQueue
             state.requestQueue.push(action.payload)
+            state.spawnTimer = incrementSpawnTimer(state.spawnTimer)
         },
         nextFloor: (state) => {
             // Increments/Decrements floor according to direction
             if(state.direction !== Direction.IDLE){
                 state.currentFloor += state.direction === Direction.UP ? 1 : -1
+                state.floorState = FloorState.ARRIVING
             }
+            state.spawnTimer = incrementSpawnTimer(state.spawnTimer)
         },
         updateDirection: (state) => {
             // Sets new direction according to current state
@@ -70,6 +90,7 @@ const elevatorSlice = createSlice({
                     }
                 }
             }
+            state.spawnTimer = incrementSpawnTimer(state.spawnTimer)
         },
         updateDestination: (state) => {
             // Sets new destination floor according to previous state
@@ -81,6 +102,14 @@ const elevatorSlice = createSlice({
                 state.destinationFloor = state.currentFloor
             }
 
+            if(state.destinationFloor > state.currentFloor){
+                state.direction = Direction.UP
+            }else if(state.destinationFloor < state.currentFloor){
+                state.direction = Direction.DOWN
+            }else{
+                state.direction = Direction.IDLE
+            }
+            state.spawnTimer = incrementSpawnTimer(state.spawnTimer)
         },
         stepFloorState: (state) => {
             // Moves floor state to the next logical option (i.e => close door to leaving)
@@ -123,12 +152,17 @@ const elevatorSlice = createSlice({
 
                     break
             }
+            state.spawnTimer = incrementSpawnTimer(state.spawnTimer)
         }
     }
 })
 
+const test = elevatorSlice.reducer
+
+export const {pickUp, dropOff, addRequest, nextFloor, updateDirection, updateDestination, stepFloorState} = elevatorSlice.actions
+
 export const store = configureStore({
-    reducer: elevatorSlice.reducer,
+    reducer: elevatorSlice.reducer
 })
 
 export type RootState = ReturnType<typeof store.getState>

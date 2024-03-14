@@ -18,7 +18,7 @@ export interface Tenant{
     destinationFloor: number
     direction: Direction.DOWN | Direction.UP
     name: string
-    requestTime: Date
+    requestTime: string
     startingFloor: number
 }
 
@@ -29,4 +29,5 @@ export interface ElevatorState{
     floorState: FloorState
     passengerQueue: Tenant[]
     requestQueue: Tenant[]
+    spawnTimer: number
 }

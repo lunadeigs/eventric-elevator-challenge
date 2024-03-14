@@ -1,10 +1,108 @@
 'use client'
 import { DateTime } from "luxon"
-import { Direction, FloorState, Tenant } from "./elevatorTypes"
+import { Direction, ElevatorState, FloorState, Tenant } from "./elevatorTypes"
 import PassengerList from "./passengerList"
 import PendingRequestsList from "./pendingRequestsList"
 import ElevatorControl from "./elevatorControl"
-import { useSelector } from "react-redux"
+import { useEffect, useState } from "react"
+import { RootState, AppDispatch, pickUp, nextFloor, dropOff, updateDestination, updateDirection, stepFloorState } from "./store"
+import { useAppDispatch, useAppSelector } from "./reduxHooks"
+
+function validateDirection(elevatorState:ElevatorState){
+    if(elevatorState.passengerQueue.length > 0){
+        return elevatorState.direction === elevatorState.passengerQueue[0].direction
+    }
+
+    const currentFloorTenants = elevatorState.requestQueue.filter(tenant => tenant.startingFloor === elevatorState.currentFloor)
+    if(currentFloorTenants.length > 0){
+        return elevatorState.direction === currentFloorTenants[0].direction
+    }
+
+    if(elevatorState.requestQueue.length > 0){
+        const floorDifference = elevatorState.currentFloor - elevatorState.requestQueue[0].startingFloor
+        if(floorDifference > 0){
+            return elevatorState.direction === Direction.DOWN
+        }
+
+        return elevatorState.direction === Direction.UP
+    }
+    
+    return elevatorState.direction === Direction.IDLE
+}
+
+function validateDestination(elevatorState:ElevatorState){
+    if(elevatorState.passengerQueue.length > 0){
+        return elevatorState.destinationFloor === elevatorState.passengerQueue[0].destinationFloor
+    }
+    
+    if(elevatorState.requestQueue.length > 0){
+        return elevatorState.destinationFloor === elevatorState.requestQueue[0].startingFloor
+    }
+
+    return elevatorState.destinationFloor === elevatorState.currentFloor
+}
+
+function floorHasPickup(elevatorState:ElevatorState){
+    return elevatorState.requestQueue.find(tenant => (
+        tenant.startingFloor === elevatorState.currentFloor
+        && tenant.direction === elevatorState.direction
+    )) !== undefined 
+}
+
+function useElevator(){
+    const elevatorState = useAppSelector(state => state)
+    const elevatorDispatch = useAppDispatch()
+
+    useEffect(() => {
+        let ignore = false
+
+        console.log(elevatorState)
+
+        setTimeout(() => {
+            if(!ignore){
+                if(elevatorState.spawnTimer === 9){
+
+                }else{
+                    switch(elevatorState.floorState){
+                        case FloorState.ARRIVING:
+                            elevatorDispatch(stepFloorState())
+                            break
+                        case FloorState.STOPPING:
+                            elevatorDispatch(stepFloorState())
+                            break
+                        case FloorState.OPEN:
+                            if(elevatorState.passengerQueue.find(tenant => tenant.destinationFloor === elevatorState.currentFloor)){
+                                elevatorDispatch(dropOff())
+                            }else if(!validateDirection(elevatorState)){
+                                elevatorDispatch(updateDirection())
+                            }else if(floorHasPickup(elevatorState)){
+                                elevatorDispatch(pickUp())
+                            }else{
+                                elevatorDispatch(stepFloorState())
+                            }
+                            break
+                        case FloorState.CLOSED:
+                            if(!validateDestination(elevatorState)){
+                                elevatorDispatch(updateDestination())                    
+                            }else{
+                                elevatorDispatch(stepFloorState())
+                            }
+                            break
+                        case FloorState.LEAVING:
+                            elevatorDispatch(nextFloor())
+                            break
+                    }
+                }
+            }
+        }, 1000)
+
+        return(() => {
+            ignore = true
+        })
+    })
+
+    return elevatorState
+}
 
 function PageWrapper(props:{
     children:React.ReactNode;
@@ -23,72 +121,45 @@ function PageWrapper(props:{
 }
 
 export default function Home(){
-    const elevatorState = useSelector(state => state)
-    console.log(elevatorState)
-    const DUMMY_PASSENGERS:Tenant[] = [
-        {
-            name: "Something Something",
-            destinationFloor: 5,
-            direction: Direction.DOWN,
-            startingFloor: 10,
-            requestTime: DateTime.now().toJSDate()
-        },
-        {
-            name: "Another Person",
-            destinationFloor: 6,
-            direction: Direction.UP,
-            startingFloor: 5,
-            requestTime: DateTime.now().toJSDate()
-        },
-        {
-            name: "Third Person",
-            destinationFloor: 4,
-            direction: Direction.UP,
-            startingFloor: 1,
-            requestTime: DateTime.now().toJSDate()
-        }
-    ]
+    // const DUMMY_REQUESTS:Pick<Tenant, 'direction' | 'requestTime' | 'startingFloor'>[] = [
+    //     {
+    //         direction: Direction.UP,
+    //         startingFloor: 10,
+    //         requestTime: new Date('December 17, 1995 03:24:00').toString()
+    //     },
+    //     {
+    //         direction: Direction.UP,
+    //         startingFloor: 8,
+    //         requestTime: new Date('December 17, 1995 03:24:01').toString()
+    //     },
+    //     {
+    //         direction: Direction.DOWN,
+    //         startingFloor: 2,
+    //         requestTime: new Date('December 17, 1995 03:24:02').toString()
+    //     },
+    //     {
+    //         direction: Direction.UP,
+    //         startingFloor: 18,
+    //         requestTime: new Date('December 17, 1995 03:24:03').toString()
+    //     },
+    //     {
+    //         direction: Direction.DOWN,
+    //         startingFloor: 5,
+    //         requestTime: new Date('December 17, 1995 03:24:04').toString()
+    //     }
+    // ]
 
-    const DUMMY_REQUESTS:Pick<Tenant, 'direction' | 'requestTime' | 'startingFloor'>[] = [
-        {
-            direction: Direction.UP,
-            startingFloor: 10,
-            requestTime: DateTime.now().toJSDate()
-        },
-        {
-            direction: Direction.UP,
-            startingFloor: 8,
-            requestTime: DateTime.now().minus({seconds: 10}).toJSDate()
-        },
-        {
-            direction: Direction.DOWN,
-            startingFloor: 2,
-            requestTime: DateTime.now().minus({seconds: 20}).toJSDate()
-        },
-        {
-            direction: Direction.UP,
-            startingFloor: 18,
-            requestTime: DateTime.now().minus({seconds: 30}).toJSDate()
-        },
-        {
-            direction: Direction.DOWN,
-            startingFloor: 5,
-            requestTime: DateTime.now().minus({seconds: 40}).toJSDate()
-        }
-    ]
+    const elevator = useElevator()
 
     return <PageWrapper>
             <PassengerList 
-                elevatorPassengers={DUMMY_PASSENGERS}
+                elevatorPassengers={elevator.passengerQueue}
             />
             <ElevatorControl
-                currentFloor={8}
-                direction={Direction.DOWN}
-                floorState={FloorState.CLOSED}
-                passengerQueue={DUMMY_PASSENGERS}
+                {...elevator}
             />
             <PendingRequestsList
-                pendingTenants={DUMMY_REQUESTS}
+                pendingTenants={elevator.requestQueue}
             />
     </PageWrapper>
 }
