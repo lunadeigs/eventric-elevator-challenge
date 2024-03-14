@@ -1,22 +1,17 @@
 'use client'
 
 import CardWrapper from "./cardWrapper"
+import { Tenant } from "./elevatorTypes"
 
-function PassengerRow(props:{
-    name:string,
-    floor:number
-}){
+function PassengerRow(props:Pick<Tenant, 'name' | 'destinationFloor'>){
     return <tr>
         <td className="w-10 text-capitalize">{props.name}</td>
-        <td className="w-2">{props.floor}</td>
+        <td className="w-2">{props.destinationFloor}</td>
     </tr>
 }
 
 export default function PassengerList(props:{
-    elevatorPassengers: {
-        name: string,
-        floor: number
-    }[]
+    elevatorPassengers:Pick<Tenant, 'name' | 'destinationFloor'>[]
 }){
     return <CardWrapper col={4}>
         <div className="card-header">
@@ -31,7 +26,7 @@ export default function PassengerList(props:{
                     </tr>
                 </thead>
                 <tbody>{
-                    props.elevatorPassengers.map((val, inx) => {
+                    props.elevatorPassengers.map((val) => {
                         return <PassengerRow
                             key={val.name}
                             {...val}

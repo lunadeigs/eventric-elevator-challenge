@@ -16,9 +16,9 @@ export enum FloorState{
 
 export interface Tenant{
     destinationFloor: number
-    direction: Direction
+    direction: Direction.DOWN | Direction.UP
     name: string
-    requestTime: DateTime
+    requestTime: Date
     startingFloor: number
 }
 

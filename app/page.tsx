@@ -1,4 +1,7 @@
+import { DateTime } from "luxon"
+import { Direction, Tenant } from "./elevatorTypes"
 import PassengerList from "./passengerList"
+import PendingRequestsList from "./pendingRequestsList"
 
 function PageWrapper(props:{
     children:React.ReactNode
@@ -18,21 +21,46 @@ function PageWrapper(props:{
 
 
 export default function Home(){
-    const DUMMY_PASSENGERS:{
-        name:string,
-        floor:number
-    }[] = [
+    const DUMMY_PASSENGERS:Pick<Tenant, 'name' | 'destinationFloor'>[] = [
         {
             name: "Something Something",
-            floor: 5
+            destinationFloor: 5
         },
         {
             name: "Another Person",
-            floor: 6
+            destinationFloor: 6
         },
         {
             name: "Third Person",
-            floor: 4
+            destinationFloor: 4
+        }
+    ]
+
+    const DUMMY_REQUESTS:Pick<Tenant, 'direction' | 'requestTime' | 'startingFloor'>[] = [
+        {
+            direction: Direction.UP,
+            startingFloor: 10,
+            requestTime: DateTime.now().toJSDate()
+        },
+        {
+            direction: Direction.UP,
+            startingFloor: 8,
+            requestTime: DateTime.now().minus({seconds: 10}).toJSDate()
+        },
+        {
+            direction: Direction.DOWN,
+            startingFloor: 2,
+            requestTime: DateTime.now().minus({seconds: 20}).toJSDate()
+        },
+        {
+            direction: Direction.UP,
+            startingFloor: 18,
+            requestTime: DateTime.now().minus({seconds: 30}).toJSDate()
+        },
+        {
+            direction: Direction.DOWN,
+            startingFloor: 5,
+            requestTime: DateTime.now().minus({seconds: 40}).toJSDate()
         }
     ]
 
@@ -40,6 +68,9 @@ export default function Home(){
         <PageWrapper>
             <PassengerList 
                 elevatorPassengers={DUMMY_PASSENGERS}
+            />
+            <PendingRequestsList
+                pendingTenants={DUMMY_REQUESTS}
             />
         </PageWrapper>
     </main>
