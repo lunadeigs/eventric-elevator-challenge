@@ -80,11 +80,11 @@ function useElevator(){
 
         console.log(elevatorState)
 
-        setTimeout(() => {
-            if(!ignore){
-                if(elevatorState.spawnTimer === 19){
-                    elevatorDispatch(addRequest(buildRandomTenant()))
-                }else{
+        if(elevatorState.spawnTimer === 10){
+            elevatorDispatch(addRequest(buildRandomTenant()))
+        }else{
+            setTimeout(() => {
+                if(!ignore){
                     switch(elevatorState.floorState){
                         case FloorState.ARRIVING:
                             elevatorDispatch(stepFloorState())
@@ -115,8 +115,8 @@ function useElevator(){
                             break
                     }
                 }
-            }
-        }, 500)
+            }, 1000)
+        }
 
         return(() => {
             ignore = true
@@ -182,6 +182,7 @@ export default function Home(){
             />
             <PendingRequestsList
                 pendingTenants={elevator.requestQueue}
+                spawnTimer={elevator.spawnTimer}
             />
     </PageWrapper>
 }

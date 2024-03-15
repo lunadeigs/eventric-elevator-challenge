@@ -10,8 +10,8 @@ function ElevatorDisplayArrow(props:Pick<ElevatorState, 'direction' | 'floorStat
             <IconMinus className="text-yellow icon icon-lg"/>
             : props.floorState === FloorState.ARRIVING || props.floorState === FloorState.LEAVING ?
                 props.direction === Direction.DOWN ?
-                    <IconArrowDown className="text-red icon icon-lg" />
-                    : <IconArrowUp className="text-green icon icon-lg" />
+                    <IconArrowDown className="text-red icon icon-lg blink" />
+                    : <IconArrowUp className="text-green icon icon-lg blink" />
                 : props.direction === Direction.DOWN ?
                     <IconArrowDown className="text-secondary icon icon-lg" />
                     : <IconArrowUp className="text-secondary icon icon-lg" />
@@ -51,7 +51,7 @@ function ElevatorPanelButton(props:{
 }){ /* FIXME - Need to remove the on hover effect so it's not confusing when using */
     return <div className="col col-auto text-center">
         <span 
-            className={`btn btn-icon cursor-default ${props.pressed ? "btn" : "btn-outline"}-yellow`}
+            className={`btn btn-icon disabled cursor-default ${props.pressed ? "btn" : "btn-outline"}-primary`}
             style={{
                 
             }}
@@ -81,27 +81,31 @@ function ElevatorPanelRow(props:{
 function ElevatorPanel(props:Pick<ElevatorState, 'currentFloor' | 'passengerQueue' | 'floorState'>){
     const pressedFloors = Array.from(new Set(props.passengerQueue.reduce((prev, curr) => {
         const newFloor = curr.destinationFloor
-        
+
         return [...prev, newFloor]
     }, [] as number[])))
 
-    return <CardWrapper col={12}>
-        <div className="card-body">
-            {
-                Array.from(Array(4).keys()).reverse().map(val => {
-                    return <ElevatorPanelRow
-                        pressedFloors={pressedFloors}
-                        startFloor={(val*5) + 1}
-                        key={val + 1}
-                    />
-                })
-            }
+    return <div className={`col col-lg-12`}>
+        <div className="card">
+            <div className="card-body">
+                {
+                    Array.from(Array(4).keys()).reverse().map(val => {
+                        return <ElevatorPanelRow
+                            pressedFloors={pressedFloors}
+                            startFloor={(val*5) + 1}
+                            key={val + 1}
+                        />
+                    })
+                }
+            </div>
         </div>
-    </CardWrapper>
-    }
+    </div>
+}
 
-export default function ElevatorControl(props:Pick<ElevatorState, 'currentFloor' | 'direction' | 'floorState' | 'passengerQueue'>){
-    return <div className="col col-lg-4">
+export default function ElevatorControl(props:Pick<ElevatorState, 'currentFloor' | 'direction' | 'floorState' | 'passengerQueue' | 'spawnTimer'>){
+    return <div className="col col-lg-4" style={{
+        height: "50vh"
+    }}>
         <div className="row row-cards">
             <div className="col col-lg-12">
                 <ElevatorDisplay {...props} />

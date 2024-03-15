@@ -8,11 +8,11 @@ const initialState:ElevatorState = {
     floorState: FloorState.CLOSED,
     passengerQueue: [],
     requestQueue: [],
-    spawnTimer: 0
+    spawnTimer: 5
 }
 
 function incrementSpawnTimer(prev:number){
-    if(prev === 19){
+    if(prev === 10){
         return 0
     }else{
         return prev + 1

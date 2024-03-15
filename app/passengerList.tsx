@@ -17,7 +17,14 @@ export default function PassengerList(props:{
         <div className="card-header">
             <h3 className="card-title">Passenger List</h3>
         </div>
-        <div className="card-table table-responsive">
+        <div className="card-table table-responsive" style={{
+                    overflowY: "auto",
+                    display: "block",
+                    height: "50vh",
+                    width: "inherit",
+                    margin: 0,
+                    padding: 0
+            }}>
             <table className="table table-vcenter">
                 <thead>
                     <tr>
