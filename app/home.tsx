@@ -7,6 +7,7 @@ import ElevatorControl from "./elevatorControl"
 import { useEffect, useState } from "react"
 import { RootState, AppDispatch, pickUp, nextFloor, dropOff, updateDestination, updateDirection, stepFloorState, addRequest } from "./store"
 import { useAppDispatch, useAppSelector } from "./reduxHooks"
+import { uniqueNamesGenerator, names } from "unique-names-generator"
 
 function validateDirection(elevatorState:ElevatorState){
     if(elevatorState.passengerQueue.length > 0){
@@ -52,6 +53,9 @@ function floorHasPickup(elevatorState:ElevatorState){
 function buildRandomTenant():Tenant{
     const startingFloor = Math.floor(Math.random() * 20) + 1;
     let destinationFloor = Math.floor(Math.random() * 20) + 1;
+    const newName = uniqueNamesGenerator({
+        dictionaries: [names]
+    })
     
     if(destinationFloor === startingFloor){
         if(destinationFloor < 10){
@@ -64,12 +68,11 @@ function buildRandomTenant():Tenant{
     return {
         destinationFloor: destinationFloor,
         direction: startingFloor > destinationFloor ? Direction.DOWN : Direction.UP,
-        name: "First Last",
+        name: newName,
         requestTime: DateTime.now().toLocaleString(DateTime.TIME_WITH_SECONDS),
         startingFloor: startingFloor
     }
 }
-
 
 function useElevator(){
     const elevatorState = useAppSelector(state => state)
